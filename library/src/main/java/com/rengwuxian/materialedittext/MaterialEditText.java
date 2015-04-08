@@ -443,10 +443,10 @@ public class MaterialEditText extends EditText {
       resetHintTextColor();
       setText(text);
       setSelection(text.length());
-      floatingLabelFraction = 1;
       floatingLabelShown = true;
     } else {
       resetHintTextColor();
+      floatingLabelShown = false;
     }
     resetTextColor();
   }
@@ -821,48 +821,33 @@ public class MaterialEditText extends EditText {
   }
 
   private void initFloatingLabel() {
-    // observe the text changing
-    addTextChangedListener(new TextWatcher() {
-      @Override
-      public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-      }
-
-      @Override
-      public void onTextChanged(CharSequence s, int start, int before, int count) {
-      }
-
-      @Override
-      public void afterTextChanged(Editable s) {
-        if (floatingLabelEnabled) {
-          if (s.length() == 0) {
-            if (floatingLabelShown) {
-              floatingLabelShown = false;
-              getLabelAnimator().reverse();
-            }
-          } else if (!floatingLabelShown) {
-            floatingLabelShown = true;
-            if (getLabelAnimator().isStarted()) {
-              getLabelAnimator().reverse();
-            } else {
-              getLabelAnimator().start();
-            }
-          }
-        }
-      }
-    });
     // observe the focus state to animate the floating label's text color appropriately
     innerFocusChangeListener = new OnFocusChangeListener() {
       @Override
       public void onFocusChange(View v, boolean hasFocus) {
-        if (floatingLabelEnabled && highlightFloatingLabel) {
+        if (floatingLabelEnabled || highlightFloatingLabel) {
           if (hasFocus) {
+            floatingLabelFraction = 1f;
+            if (!floatingLabelShown) {
+              floatingLabelShown = true;
+              if(getLabelAnimator().isStarted()) {
+                getLabelAnimator().reverse();
+              } else {
+                getLabelAnimator().start();
+              }
+            }
+
             if (getLabelFocusAnimator().isStarted()) {
               getLabelFocusAnimator().reverse();
             } else {
               getLabelFocusAnimator().start();
             }
+            setHint(null);
           } else {
             getLabelFocusAnimator().reverse();
+            getLabelAnimator().reverse();
+            setHint(floatingLabelText);
+            floatingLabelShown = false;
           }
         }
         if (outerFocusChangeListener != null) {
