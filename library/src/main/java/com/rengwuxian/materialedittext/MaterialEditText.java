@@ -845,7 +845,9 @@ public class MaterialEditText extends EditText {
             setHint(null);
           } else {
             getLabelFocusAnimator().reverse();
-            getLabelAnimator().reverse();
+            if(getText().length() == 0) {
+              getLabelAnimator().reverse();
+            }
             setHint(floatingLabelText);
             floatingLabelShown = false;
           }
